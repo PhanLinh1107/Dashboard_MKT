@@ -18,7 +18,8 @@ export function navItems(counts: { alerts: number; primary: number; secondary: n
   ];
 }
 
-export function Sidebar({ items, page, onPage, onRail, shown, total, note, theme, onTheme, onReset, acctOpen, onAcct }: {
+export function Sidebar({ user, items, page, onPage, onRail, shown, total, note, theme, onTheme, onReset, acctOpen, onAcct }: {
+  user: { name: string; email: string; picture?: string };
   items: NavItem[];
   page: PageId;
   onPage: (p: PageId) => void;
@@ -32,7 +33,6 @@ export function Sidebar({ items, page, onPage, onRail, shown, total, note, theme
   acctOpen: boolean;
   onAcct: () => void;
 }) {
-  const user = CFG.app.user ?? { name: 'Bạn', first: 'bạn' };
   const nav: ReactNode[] = [];
   let group = '';
   for (const p of items) {
@@ -68,12 +68,20 @@ export function Sidebar({ items, page, onPage, onRail, shown, total, note, theme
           <div className="unote">{note}</div>
           <button className="ubtn" onClick={() => onPage('source')}>Xem nguồn dữ liệu</button>
         </div>
-        <div className="wrap">
-          <button className="acct" onClick={onAcct} title={user.email ?? user.name}>
-            <span className="av">{user.name.charAt(0).toUpperCase()}</span>
-            <span className="at"><span className="an">{user.name}</span><span className="ae">{user.email ?? user.role ?? ''}</span></span>
+        <div className="wrap acctrow">
+          <button className="acct" onClick={onAcct} title={user.email}>
+            {user.picture
+              // ảnh Google (lh3.googleusercontent.com) trả 403 khi có Referer ⇒ no-referrer
+              ? <img className="av" src={user.picture} alt="" referrerPolicy="no-referrer" />
+              : <span className="av">{user.name.charAt(0).toUpperCase()}</span>}
+            <span className="at"><span className="an">{user.name}</span><span className="ae">{user.email}</span></span>
             <Icon name="chevron-down" className="lu-xs" />
           </button>
+          <form action="/api/auth/signout" method="post" className="signout">
+            <button type="submit" className="ibtn icon" title="Đăng xuất" aria-label="Đăng xuất">
+              <Icon name="log-out" className="lu-sm" />
+            </button>
+          </form>
           <div className="pop up" hidden={!acctOpen}>
             <button className="r" onClick={onTheme}>
               <Icon name={theme === 'light' ? 'moon' : 'sun'} className="lu-sm" />
@@ -81,6 +89,10 @@ export function Sidebar({ items, page, onPage, onRail, shown, total, note, theme
             </button>
             <button className="r" onClick={() => onPage('source')}><Icon name="database" className="lu-sm" />Nguồn dữ liệu</button>
             <button className="r" onClick={onReset}><Icon name="rotate-ccw" className="lu-sm" />Đặt lại bộ lọc</button>
+            <div className="sep" />
+            <form action="/api/auth/signout" method="post">
+              <button type="submit" className="r" style={{ width: '100%' }}><Icon name="log-out" className="lu-sm" />Đăng xuất</button>
+            </form>
           </div>
         </div>
       </div>

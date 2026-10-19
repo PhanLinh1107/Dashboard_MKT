@@ -203,6 +203,9 @@ input,select{font:inherit;color:inherit}
 #gbtn:active{background:#EFF0F0}
 #gbtn:disabled{opacity:.55;pointer-events:none}
 #gbtn svg{flex:0 0 20px}
+a#gbtn{text-decoration:none}
+#gbtn[data-busy]{pointer-events:none;opacity:.8}
+.logincard .err+.note,.logincard #gbtn+.note{margin-top:18px}
 [data-theme="dark"] #gbtn{background:#131314;border-color:#8E918F;color:#E3E3E3}
 [data-theme="dark"] #gbtn:hover{background:#1E1F20}
 .spin{width:16px;height:16px;flex:0 0 16px;border-radius:50%;
@@ -307,6 +310,12 @@ input,select{font:inherit;color:inherit}
 .av{width:24px;height:24px;flex:0 0 24px;border-radius:50%;display:flex;align-items:center;
     justify-content:center;font-size:10.5px;font-weight:600;color:var(--on-brand);
     background:var(--brand)}
+img.av{object-fit:cover;background:var(--sub2)}
+/* Hàng tài khoản: nút tài khoản co giãn + nút Đăng xuất luôn hiện ở góc dưới sidebar */
+.acctrow{display:flex;align-items:center;gap:4px}
+.acctrow .acct{flex:1;min-width:0;width:auto}
+.signout{flex:0 0 auto}
+#stage.rail .signout{display:none}
 .acct .at{flex:1;min-width:0;overflow:hidden}
 .acct .an{display:block;font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;
           text-overflow:ellipsis}

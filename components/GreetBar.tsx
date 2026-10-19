@@ -7,7 +7,7 @@ import { Icon } from './Icon';
 
 export type Chip = { key: string; label: string; remove: () => void };
 
-export function GreetBar({ context, chips, onClear }: { context: string; chips: Chip[]; onClear: () => void }) {
+export function GreetBar({ first: name, context, chips, onClear }: { first?: string; context: string; chips: Chip[]; onClear: () => void }) {
   // Giờ chỉ tính ở trình duyệt (giờ server khác giờ máy ⇒ lệch khi hydrate). Tự đổi lời chào khi qua mốc giờ.
   const [now, setNow] = useState<Date | null>(null);
   useEffect(() => {
@@ -15,7 +15,7 @@ export function GreetBar({ context, chips, onClear }: { context: string; chips: 
     const id = setInterval(() => setNow(nowVN()), 30_000);
     return () => clearInterval(id);
   }, []);
-  const first = CFG.app.user?.first ?? 'bạn';
+  const first = name ?? CFG.app.user?.first ?? 'bạn';
   return (
     <div id="greet">
       <div style={{ minWidth: 0 }}>
