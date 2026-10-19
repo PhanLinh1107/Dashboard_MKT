@@ -1,0 +1,22 @@
+/node_modules
+/.next/
+/out/
+/build
+.DS_Store
+*.pem
+npm-debug.log*
+
+# Khoá Google nằm ở đây. Không bao giờ đưa lên GitHub.
+.env*
+
+.vercel
+*.tsbuildinfo
+next-env.d.ts
+
+# Log của script (cài nền, dev server nền)
+.install.*
+.dev.log
+
+# Bản cất của scaffold và dấu build
+/.backup-*/
+/.dashboard-build
