@@ -1,13 +1,13 @@
 /* GET /api/auth/signin → chuyển sang màn chọn tài khoản Google.
    state ngẫu nhiên lưu trong cookie httpOnly, callback so khớp để chống giả mạo (CSRF). */
 import { NextResponse } from 'next/server';
-import { CALLBACK_PATH, STATE_COOKIE, appOrigin, cookieBase, randomToken } from '@/lib/auth';
+import { CALLBACK_PATH, STATE_COOKIE, appOrigin, cookieBase, envOf, randomToken } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: Request) {
-  const clientId = process.env.AUTH_GOOGLE_ID;
-  if (!clientId || !process.env.AUTH_GOOGLE_SECRET) {
+  const clientId = envOf('AUTH_GOOGLE_ID');
+  if (!clientId || !envOf('AUTH_GOOGLE_SECRET')) {
     return NextResponse.redirect(new URL('/login?error=config', req.url));
   }
   const state = randomToken();

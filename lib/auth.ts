@@ -12,6 +12,12 @@ type Payload = SessionUser & { exp: number };
 
 const enc = new TextEncoder();
 
+/** Đọc biến môi trường, bỏ khoảng trắng/xuống dòng và cặp dấu nháy bao ngoài —
+    lỗi hay gặp khi dán giá trị vào Vercel › Environment Variables. */
+export function envOf(name: string): string {
+  return (process.env[name] ?? '').trim().replace(/^(['"])([\s\S]*)\1$/, '$2').trim();
+}
+
 function b64url(bytes: Uint8Array): string {
   let s = '';
   for (const b of bytes) s += String.fromCharCode(b);
@@ -26,7 +32,7 @@ function fromB64url(s: string): Uint8Array<ArrayBuffer> {
 }
 
 async function hmacKey(): Promise<CryptoKey> {
-  const secret = process.env.AUTH_SECRET;
+  const secret = envOf('AUTH_SECRET');
   if (!secret || secret.length < 32) throw new Error('Thiếu AUTH_SECRET (≥32 ký tự) trong .env.local');
   return crypto.subtle.importKey('raw', enc.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign', 'verify']);
 }
@@ -56,7 +62,7 @@ export async function readSession(token: string | undefined): Promise<SessionUse
 
 /** ALLOWED_EMAILS trong .env.local: các email cách nhau bằng dấu phẩy, chấm phẩy hoặc khoảng trắng. */
 export function allowedEmails(): string[] {
-  return (process.env.ALLOWED_EMAILS ?? '').split(/[,;\s]+/).map((e) => e.trim().toLowerCase()).filter(Boolean);
+  return envOf('ALLOWED_EMAILS').split(/[,;\s]+/).map((e) => e.trim().toLowerCase()).filter(Boolean);
 }
 
 export function isAllowed(email: string): boolean {
@@ -69,7 +75,7 @@ export function randomToken(bytes = 24): string {
 
 /** Địa chỉ gốc của app. AUTH_URL (tuỳ chọn) dùng khi chạy sau proxy/tên miền thật; mặc định lấy từ request. */
 export function appOrigin(reqUrl: string): string {
-  return (process.env.AUTH_URL ?? new URL(reqUrl).origin).replace(/\/+$/, '');
+  return (envOf('AUTH_URL') || new URL(reqUrl).origin).replace(/\/+$/, '');
 }
 
 export const CALLBACK_PATH = '/api/auth/callback/google';

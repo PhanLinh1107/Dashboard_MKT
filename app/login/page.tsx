@@ -15,12 +15,22 @@ const MESSAGES: Record<string, { title: string; body: string }> = {
   config: { title: 'Đăng nhập chưa được cấu hình', body: 'Thiếu AUTH_GOOGLE_ID hoặc AUTH_GOOGLE_SECRET trong .env.local. Liên hệ Admin.' },
 };
 
-export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
+/* Mã lỗi kỹ thuật (từ callback) → gợi ý cho Admin. Chỉ là mã, không chứa khoá. */
+const REASONS: Record<string, string> = {
+  invalid_client: 'AUTH_GOOGLE_ID hoặc AUTH_GOOGLE_SECRET trên server không khớp OAuth Client.',
+  unauthorized_client: 'AUTH_GOOGLE_ID hoặc AUTH_GOOGLE_SECRET trên server không khớp OAuth Client.',
+  redirect_uri_mismatch: 'AUTH_URL khác địa chỉ callback đã khai báo trên Google Cloud.',
+  invalid_grant: 'Mã đăng nhập đã hết hạn hoặc đã dùng. Bấm đăng nhập lại.',
+  id_token_invalid: 'AUTH_GOOGLE_ID trên server không khớp tài khoản Google vừa trả về.',
+};
+
+export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string; reason?: string }> }) {
   const jar = await cookies();
   const user = await readSession(jar.get(SESSION_COOKIE)?.value);
   if (user && isAllowed(user.email)) redirect('/dashboard');
 
-  const { error } = await searchParams;
+  const { error, reason } = await searchParams;
+  const code = reason && /^[a-z0-9_]{1,40}$/.test(reason) ? reason : undefined;
   const deniedEmail = error === 'denied' ? jar.get(DENIED_COOKIE)?.value : undefined;
   const msg = error && error !== 'denied' ? MESSAGES[error] : undefined;
 
@@ -42,7 +52,10 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
           </div>
         )}
         {msg && (
-          <div className="err" role="alert"><b>{msg.title}</b>{msg.body}</div>
+          <div className="err" role="alert">
+            <b>{msg.title}</b>{msg.body}
+            {code && <div style={{ marginTop: 6 }}>Mã lỗi: <code>{code}</code>{REASONS[code] ? ` — ${REASONS[code]}` : ''}</div>}
+          </div>
         )}
 
         <div className="note">
